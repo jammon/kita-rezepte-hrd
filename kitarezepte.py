@@ -501,8 +501,6 @@ class DatenAusgabe(webapp.RequestHandler):
     def get(self):
         write = self.response.out.write
         write(["""#coding: utf-8
-from google.appengine.dist import use_library
-use_library("django", "1.0")
 import os
 from google.appengine.ext import db
 import datetime

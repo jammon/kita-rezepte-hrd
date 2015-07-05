@@ -6,7 +6,7 @@
 {% include "zutaten-anzeigen-template.html" %}{% endblock col1 %}
 {% block col3 %}{% if isauthorized %}
 <div class='zutateneingabe'><h2>Zutat bearbeiten</h2>
-<form action="/zutaten/{{ zutat.key }}" method="post">
+<form action="/zutaten/{{ zutat.key() }}" method="post">
   <table>
     <tr>
       <td><label for="name">Name</label></td>
@@ -33,7 +33,7 @@
         {% for einheit in masseinheiten %}
           <input type="radio" name="masseinheit" value="{{ einheit }}" 
                  id="{{ einheit }}" 
-                 {% ifequal einheit zutat.masseinheit %}checked="checked"{% endifequal %}/> 
+                 {% if einheit == zutat.masseinheit %}checked="checked"{% endif %}/> 
           {{ einheit }}{% endfor %}
         <div class="discreet">Bei Sahne z.B. 250 ml</div>
       </td>
@@ -43,8 +43,8 @@
       <td>
         {% for kategorie in kategorien %}
           <input type="checkbox" name="kategorie" value="{{ kategorie }}"
-            {% ifequal kategorie zutat.kategorie %} checked="checked" 
-            {% endifequal %}/> 
+            {% if kategorie == zutat.kategorie %} checked="checked" 
+            {% endif %}/> 
           {{ kategorie }}
         {% endfor %}
         <div class="discreet">Man kann auch mehrere Kategorien ankreuzen.</div>
@@ -53,16 +53,16 @@
     <tr>
       <td><label for="preis">Preis pro Einheit</label></td>
       <td><input name="preis" id="preis" type="text" size="10" maxlength="15"/
-                 value="{{ zutat.preisInEuro }}"></td>
+                 value="{{ zutat.preisInEuro() }}"></td>
     </tr>
   </table>
   <div><input type="submit" value="Speichern"/></div>
-  <div>{% ifequal zutat.verwendung.count 0 %}
+  <div>{% if zutat.verwendung.count == 0 %}
   Die Zutat zur Zeit in keinem Rezept verwendet. 
-  <a href="/zutatloeschen/{{ zutat.key }}">Zutat löschen</a>{% else %}
+  <a href="/zutatloeschen/{{ zutat.key() }}">Zutat löschen</a>{% else %}
   Die Zutat wird in folgenden Rezepten verwendet:<ul>{% for rz in zutat.verwendung %}
     <li><a href="/rezepte/{{ rz.rezept.id }}">{{ rz.rezept.titel }}</a></li>
-  {% endfor %}</ul>{% endifequal %}</div>
+  {% endfor %}</ul>{% endif %}</div>
 </form>
 </div>
 {% endif %}

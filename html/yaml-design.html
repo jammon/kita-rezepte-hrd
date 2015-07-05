@@ -25,7 +25,7 @@
           <a href="{{ loginurl }}">{{ logintext }}</a> | 
           <a href="#">Kontakt</a> | 
           <a href="/impressum">Impressum</a> <br />
-          User: {{ username|default:"Nicht angemeldet" }} |
+          User: {{ username|default("Nicht angemeldet") }} |
           {% if not isauthorized %}Nicht {% endif %}Angemeldet
         </div>
       </div>

@@ -6,7 +6,7 @@
 {% endblock javascript %}
 {% block teaser %}
 <h1>Einkaufsliste</h1>
-<p>ab {{ beginn|date:"d. M. Y" }} für 
+<p>ab {{ beginn }} für 
   {{ dauer }} Tage:
 </p>
 {% endblock teaser %}
@@ -16,7 +16,7 @@
 {% else %}
   {% if messbar %}
   <h2>Benötigte Mengen:</h2>
-  <table>{% for kategorie, zutaten in messbar.items %}{% if zutaten %}
+  <table>{% for kategorie, zutaten in messbar.items() %}{% if zutaten %}
     <tr><td colspan="3"><h3>{{ kategorie }}</h3></td></tr>
     {% for zutat in zutaten %}
     <tr><td>{% if isauthorized %}<a href="/zutaten/{{ zutat.key }}">{{ zutat.name }}</a>{% else %}{{ zutat.name }}{% endif %}</td>
@@ -29,7 +29,7 @@
 {% block col3 %}
   {% if qualitativ %}
   <h2>Nur qualitative Mengenangaben:</h2>
-  <table>{% for kategorie, zutaten in qualitativ.items %}{% if zutaten %}
+  <table>{% for kategorie, zutaten in qualitativ.items() %}{% if zutaten %}
     <tr><td colspan="3"><h3>{{ kategorie }}</h3></td></tr>
     {% for zutat in zutaten %}
     <tr><td>{% if isauthorized %}<a href="/zutaten/{{ zutat.key }}">{{ zutat.name }}</a>{% else %}{{ zutat.name }}{% endif %}</td>

@@ -15,7 +15,7 @@
   };
   function zutatspeichern() {
     $.post('/ajax/zutat/hinzufuegen', 
-      { 'rezept': '{{ rezept.key }}', 
+      { 'rezept': '{{ rezept.key() }}', 
         'zutat': zutatkey,
         'menge': $('#zutatmenge').val()
       }, 
@@ -35,15 +35,15 @@
 </script>
 <h1>Rezept bearbeiten</h1>
 <form action="/rezepteingabe/{{ rezept.id }}" method="post">
-    <input type="hidden" id="rezeptkey" name="rezeptkey" value="{{ rezept.key }}"></input>
+    <input type="hidden" id="rezeptkey" name="rezeptkey" value="{{ rezept.key() }}"></input>
     <fieldset class='linkehaelfte'>
     <div>
       Zutatenliste<br />
       <table id="zutatenliste">
       {% for zutat in rezept.zutaten %}
-        <tr><td>{{ zutat.toStr }}</td><td>{{ zutat.preisToStr }}</td>
+        <tr><td>{{ zutat.toStr() }}</td><td>{{ zutat.preisToStr()|safe }}</td>
             <td><button type="button" value="Löschen" 
-              onclick="$(this).closest('tr').addClass('zuloeschen');zutatloeschen('{{ zutat.key }}')">Löschen</button>
+              onclick="$(this).closest('tr').addClass('zuloeschen');zutatloeschen('{{ zutat.key() }}')">Löschen</button>
             <!--img src="/images/delete.png" / --></td></tr>
       {% endfor %}
       </table>
@@ -54,10 +54,10 @@
           onclick='javascript:zutatspeichern()'></input>
       </div>
       <!-- Zutatenliste -->
-      <dl class="ztl">{% for kategorie, liste in zutaten.items %}
+      <dl class="ztl">{% for kategorie, liste in zutaten.items() %}
         <dt class="ztlkategorie">{{ kategorie}}</dt>
         <dd class="ztlzutat"><ul>{% for zutat in liste %}
-          <li onclick="zutatwaehlen('{{ zutat.name }}','{{ zutat.key }}','{{ zutat.masseinheit }}',this)">
+          <li onclick="zutatwaehlen('{{ zutat.name }}','{{ zutat.key() }}','{{ zutat.masseinheit }}',this)">
             {{ zutat.name }}</li>
         {% endfor %}</ul></dd>
       {% endfor %}</dl>
@@ -92,16 +92,16 @@
     <div>Geeignet für<br />
     {% for gang in gaenge %}
       <input type="checkbox" name="gang" id="gang_{{ gang }}" 
-             value="{{ gang }}" {% for t in rezept.typ %}{% ifequal t gang %}
-             checked="checked"{% endifequal %}{% endfor %}/> 
+             value="{{ gang }}" {% for t in rezept.typ %}{% if t == gang %}
+             checked="checked"{% endif %}{% endfor %}/> 
       <label for="gang_{{ gang }}">{{ gang }}</label>
     {% endfor %}  
     </div>
     <div>Kategorie<br />
     {% for kategorie in kategorien %}
       <input type="radio" name="kategorie" value="{{ kategorie }}" 
-             id="kategorie_{{ kategorie }}" {% ifequal kategorie rezept.kategorie %}
-             checked="checked"{% endifequal %}/> 
+             id="kategorie_{{ kategorie }}" {% if kategorie == rezept.kategorie %}
+             checked="checked"{% endif %}/> 
       <label for="kategorie_{{ kategorie }}">{{ kategorie }}</label>
     {% endfor %}  
     </div>

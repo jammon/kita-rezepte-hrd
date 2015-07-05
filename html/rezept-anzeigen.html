@@ -15,11 +15,11 @@ Kinder und <span id='erwachsene'>{{ erwachsene }}</span> Erwachsene.)</div>
 {% endif %}{% endif %}
 <div>Geeignet als <span id='rezept_gang'>{{ gang }}</span></div>
 <div>Kategorie <span id='kategorie'>{{ rezept.kategorie }}</span></div>
-<div>Preis dieses Rezepts: <span id='preis'>{{ preis|floatformat:"-2" }}</span> €</div>
+<div>Preis dieses Rezepts: <span id='preis'>{{ "%.2f"|format(preis) }}</span> €</div>
 {% endblock col3 %}
 {% block footer %}{% if isauthorized %}
 <a href="/rezepteingabe/{{ rezept.id }}">Rezept bearbeiten</a>{% endif %}
 {% if isadmin %}
-<a href="/rezeptloeschen/{{ rezept.key }}">Rezept löschen</a>
+<a href="/rezeptloeschen/{{ rezept.key() }}">Rezept löschen</a>
 {% endif %}
 {% endblock footer %}

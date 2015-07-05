@@ -1,5 +1,5 @@
 {% extends "yaml-design.html" %}
-{% block title %}Kita-Rezepte - Menüplan für {{ datum|date:"d.M.Y" }}{% endblock title %}
+{% block title %}Kita-Rezepte - Menüplan für {{ datum }}{% endblock title %}
 {% block css %}<link href="/css/1col_layout.css" rel="stylesheet" type="text/css" />
 {% endblock css %}
 {% block javascript %}{% include "javascript.html" %}{% endblock javascript %}
@@ -7,7 +7,7 @@
 {% if fehlermeldung %}
 <h2>{{ fehlermeldung }}</h2>
 {% else %}
-<h1>Menüplan für {{ datum|date:"d. M. Y" }}</h1>
+<h1>Menüplan für {{ datum }}</h1>
 <h2>Es kocht {{ koch }}</h2>
 {% for r in rezepte %}
 <h2>{{ r.gang }}: <a href="/rezepte/{{ r.rezept.id }}">{{ r.rezept.titel }}</a></h2>
@@ -15,7 +15,7 @@
 {{ r.erwachsene }} Erwachsene.)</div -->
 <div class="subcolumns">
   <div class='c38l zutatenliste'><h3>Zutaten</h3>
-    {% for zutat in r.rezept.zutaten %}{{ zutat.toStr }}<br />{% endfor %}</div>
+    {% for zutat in r.rezept.zutaten %}{{ zutat.toStr() }}<br />{% endfor %}</div>
   <div class="c62r">
     <div class='zubereitung'><h3>Zubereitung</h3><div>{{ r.rezept.zubereitung|safe }}</div></div>
     {% if r.rezept.anmerkungen %}<div class='anmerkungen'><h3>Anmerkungen</h3>

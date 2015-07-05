@@ -51,10 +51,10 @@
       </table>
       <h3>Neue Zutat</h3>
       <!-- Zutatenliste -->
-      <dl class="ztl">{% for kategorie, liste in zutaten.items %}
+      <dl class="ztl">{% for kategorie, liste in zutaten.items() %}
         <dt class="ztlkategorie">{{ kategorie}}</dt>
         <dd class="ztlzutat"><ul>{% for zutat in liste %}
-          <li onclick="zutatwaehlen('{{ zutat.name }}','{{ zutat.key }}','{{ zutat.masseinheit }}',this)">
+          <li onclick="zutatwaehlen('{{ zutat.name }}','{{ zutat.key() }}','{{ zutat.masseinheit }}',this)">
             {{ zutat.name }}</li>
         {% endfor %}</ul></dd>
       {% endfor %}</dl>
@@ -63,7 +63,7 @@
       </select>
       <select id="zutat" size="6">
       {% for zk, zl in zutaten %}{% for z in zl %}
-        <option class="{{zk}}" onclick="javascript:zutatwaehlen('{{ z.name }}','{{ z.key }}','{{ z.masseinheit }}')">{{z.name}}</option>{% endfor %}{% endfor %}
+        <option class="{{zk}}" onclick="javascript:zutatwaehlen('{{ z.name }}','{{ z.key() }}','{{ z.masseinheit }}')">{{z.name}}</option>{% endfor %}{% endfor %}
       </select -->
       <div><span id="zutatname"></span><br />
         <input type="text" name="zutatmenge" id="zutatmenge" size="10"></input>

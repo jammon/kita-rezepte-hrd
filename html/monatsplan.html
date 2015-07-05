@@ -23,33 +23,42 @@
 </tr>
 {% for tag in tage %}
   <tr class='{{ tag.klasse|lower }}'>
-  {% ifequal tag.klasse "Feiertag" %}
-    <td>{{ forloop.counter }}.</td><td colspan='4'></td>
+  {% if tag.klasse == "Feiertag" %}
+    <td>{{ loop.index }}.</td><td colspan='4'></td>
   {% else %}
     <td>
-      <a href='/menueplan/{{ jahr }}/{{ monat }}/{{ forloop.counter }}'>
-      {{ forloop.counter }}.</a>
+      <a href='/menueplan/{{ jahr }}/{{ monat }}/{{ loop.index }}'>
+      {{ loop.index }}.</a>
     </td>
     <td class='koch'>
-      <span id='koch_{{forloop.counter}}'>
-        {{ tag.menue.koch|default:"" }}</span>
+      <span id='koch_{{loop.index}}'>
+        {{ tag.menue.koch|default("") }}</span>
     </td>
     <td class='vorspeise'>
-      <span id='vorspeise_{{forloop.counter}}'>
-        {% if isauthorized %}{{ tag.menue.get_vorspeise_mit_preis }}
-        {% else %}{{ tag.menue.get_vorspeise }}{% endif %}</span>
+      <span id='vorspeise_{{loop.index}}'>
+        {% if tag.menue %}
+        {% if isauthorized %}{{ tag.menue.get_vorspeise_mit_preis()|default("") }}
+        {% else %}{{ tag.menue.get_vorspeise()|default("") }}{% endif %}
+        {% endif %}
+      </span>
     </td>
     <td class='hauptgang'>
-      <span id="hauptgang_{{forloop.counter}}">
-        {% if isauthorized %}{{ tag.menue.get_hauptgang_mit_preis }}
-        {% else %}{{ tag.menue.get_hauptgang }}{% endif %}</span>
+      <span id="hauptgang_{{loop.index}}">
+        {% if tag.menue %}
+        {% if isauthorized %}{{ tag.menue.get_hauptgang_mit_preis()|default("") }}
+        {% else %}{{ tag.menue.get_hauptgang()|default("") }}{% endif %}
+        {% endif %}
+      </span>
     </td>
     <td class='nachtisch'>
-      <span id="nachtisch_{{forloop.counter}}">
-        {% if isauthorized %}{{ tag.menue.get_nachtisch_mit_preis }}
-        {% else %}{{ tag.menue.get_nachtisch }}{% endif %}</span>
+      <span id="nachtisch_{{loop.index}}">
+        {% if tag.menue %}
+        {% if isauthorized %}{{ tag.menue.get_nachtisch_mit_preis()|default("") }}
+        {% else %}{{ tag.menue.get_nachtisch()|default("") }}{% endif %}
+        {% endif %}
+      </span>
     </td>
-  {% endifequal %}</tr>
+  {% endif %}</tr>
 {% endfor %}
 </table>
 
@@ -64,7 +73,7 @@ $(document).ready(function(){
   });
 {% for gang, rezepte in gaenge %}
   $('.{{ gang }} span').editable('http://'+window.location.host+'/ajax/menue/{{ gang }}/{{ jahr }}/{{ monat }}', {
-    data   : " { {% for r in rezepte %}'{{ r.id }}':'{{ r.titel }} {{ r.preisToStr|safe }}',{% endfor %} }",
+    data   : " { {% for r in rezepte %}'{{ r.id }}':'{{ r.titel }} {{ r.preisToStr()|safe }}',{% endfor %} }",
     type   : 'select',
     submit : 'OK',
     onblur   : 'submit',

@@ -17,7 +17,7 @@ import tools
 from auth import AuthorizedRequestHandler, isauthorized
 
 JINJA_ENVIRONMENT = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+    loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'html')),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 
@@ -327,28 +327,38 @@ class Monatsplan(webapp.RequestHandler, TemplateWriter):
         except (TypeError, ValueError):
             today = date.today()
             monat, jahr = today.month, today.year
+        # wichtige Daten errechnen
         erster = date(jahr, monat, 1)
         naechstererster = (monat<12) and date(jahr, monat+1, 1) or date(jahr+1, 1, 1)
         vorigererster = (monat>1) and date(jahr, monat-1, 1) or date(jahr-1, 12, 1)
         anzahltage = (naechstererster - erster).days
+
         class Tag():
+            """ Definition eines Tages: 
+            Datum, ob es ein Feiertag ist, und ein String,
+            der die Kategorie festhaelt
+            """
             def __init__(self, jahr, monat, tag):
                 self.tag = date(jahr, monat, tag)
                 self.feiertag = self.tag.weekday() > 4 # Sa + So
                 self.klasse = 'Feiertag' if self.feiertag else 'Menue'
+                self.menue = None
         tage = [Tag(jahr, monat, tag) for tag in range(1, anzahltage+1)]
-        qtage = models.Tagesplan.all().filter('datum >=', erster
+
+        tagesplaene = models.Tagesplan.all().filter('datum >=', erster
                                      ).filter('datum <', naechstererster
                                      ).order('datum')
-        for plan in qtage:
-            # Verweise auf gelöschte Rezepte entfernen
+
+        # Verweise auf gelöschte Rezepte entfernen
+        for plan in tagesplaene:
             for gang in ('vorspeise', 'hauptgang', 'nachtisch'):
                 try:
                     getattr(plan, gang)
                 except:
                     setattr(plan, gang, None)
                     plan.put()
-        for plan in qtage:
+        # Menueplaene in die Tage eintragen
+        for plan in tagesplaene:
             tag = tage[(plan.datum - erster).days]
             tag.klasse = plan.class_name()
             tag.menue = plan
@@ -389,7 +399,7 @@ class Menueplan(webapp.RequestHandler, TemplateWriter):
         datum = date(int(jahr), int(monat), int(tag))
         menue = models.Menue.all().filter('datum =', datum).get()
         template_values = standard_template_values()
-        template_values['datum'] = datum
+        template_values['datum'] = datum.strftime('%d. %m. %Y')
         if not menue:
             template_values['fehlermeldung'] = u'Menü nicht gefunden'
         else:
@@ -454,7 +464,7 @@ def rezeptliste(beginn, dauer):
 
     res = standard_template_values()
     res.update({'dauer': dauer,
-        'beginn': beginn,
+        'beginn': beginn.strftime('%d. %m. %Y'),
         'rezepte': rezepte,
         'messbar': messbarkat,
         'qualitativ': qualitativkat,

@@ -1,0 +1,23 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+  <head>
+    <title>Authorized Users</title>
+  </head>
+
+  <body>
+    <h2>Authorized Users</h2>
+
+    <ul>
+      {% for auth_user in authorized_users %}
+      <li>{{ auth_user.user.nickname }}: {{ auth_user.user.email }}
+        (<a href="/auth/userdelete?email={{ auth_user.user.email }}">Delete</a>)
+      </li>
+      {% endfor %}
+    </ul>
+
+    <form action="/auth/useradd" method="post">
+      <div><input type="text" name="email" id="email"/> (Email Address)</div>
+      <div><input type="submit" value="Add User"/></div>
+    </form>
+  </body>
+</html>

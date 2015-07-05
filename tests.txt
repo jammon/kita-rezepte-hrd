@@ -1,0 +1,15 @@
+Visuelle Tests:
+	- Hauptseite aufrufen
+	- Zutatenliste anzeigen
+		- Einen Preis ändern
+		- eine Zutat bearbeiten
+	- Rezeptliste aufrufen
+		- ein Rezept anzeigen
+		- ein Rezept bearbeiten
+			- eine Zutat löschen
+			- eine Zutat hinzufügen
+			- Text/Kategorie ändern
+	- Monatsplan aufrufen
+		- ein Rezept ändern
+		- einen Koch ändern
+	- Einkaufsliste aufrufen 

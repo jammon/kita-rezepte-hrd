@@ -1,0 +1,35 @@
+body {
+    margin: 0 1em;
+}
+.rezept {
+    margin: 0.5em 0;
+    padding-top: 1em;
+}
+.clear {
+    clear: both;
+}
+.personen {
+    float: right;
+    font-size: smaller;
+}
+.zutaten {
+    width: 33%;
+    float: left;
+}
+.zubereitung, .anmerkungen {
+    margin-left: 33%;
+}
+.anmerkungen {
+    color: #777;
+}
+h1, h2, h3, h4 {
+    font-family: Arial, Helvetica, sans-serif;
+}
+h4 {
+    margin: 0 0 1em;
+}
+.rule {
+    background-color: #AAA;
+    margin: 0 1em;
+    height: 1px;
+}

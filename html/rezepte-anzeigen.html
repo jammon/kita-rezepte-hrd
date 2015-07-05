@@ -1,0 +1,25 @@
+{% extends "yaml-design.html" %}
+{% block title %}Kita-Rezepte - alle Rezepte anzeigen{% endblock %}
+{% block css %}{% include "3col33.html" %}{% endblock css %}
+{% block col2 %}
+{% for k in hauptspeisen %}
+    <h2>{{ k.kategorie }}</h2>
+    {% for r in k.rezepte %}
+    <a href="rezepte/{{ r.id }}">{{ r.titel }}</a><br />
+    {% endfor %}
+{% endfor %}
+{% endblock col2 %}
+{% block col3 %}
+{% for k in vornachspeisen %}
+    <h2>{{ k.kategorie }}</h2>
+    {% for r in k.rezepte %}
+    <a href="rezepte/{{ r.id }}">{{ r.titel }}</a><br />
+    {% endfor %}
+{% endfor %}
+{% endblock col3 %}
+{% block col1 %}{% if isauthorized %}
+<div><a href="/rezepteingabe">Neues Rezept eingeben</a></div>
+<div><a href="/rezepte-mit-preis">Rezepte mit aktuellem Preis</a></div>
+{% if isauthorized %}<div><a href="/rezeptbuch">Alle Rezepte</a> (zum Ausdrucken)</div>{% endif %}
+{% endif %}
+{% endblock col1 %}

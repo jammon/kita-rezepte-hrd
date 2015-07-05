@@ -1,0 +1,33 @@
+.discreet {
+    font-size: smaller;
+    color: #444;
+}
+.hidden {
+    display: none;
+}
+.floatleft {float: left}
+.floatright {float: right}
+.center {margin-left: auto; margin-right: auto}
+.linkehaelfte { float: left; width: 48%; margin:0 4% 0 0}
+.rechtehaelfte { width: auto; margin: 0 0 0 51%}
+.zuloeschen {
+    text-decoration: line-through;
+}
+.zutatselected { background-color:#D2FFFF }
+
+/* Zutatenliste - Auswahl */
+.ztl { position: relative; top: 0px; left:0px; margin:0.8em 0 0 0; }
+.ztlkategorie { width: 38%; padding-left:0.8em }
+.ztlzutat { position: absolute; top:0px; left: 38%; width: 62%; display:none }
+.ztlzutat li { 
+    list-style: none;
+    margin: 0;
+    padding-left: 0.8em; 
+}
+.ztlzutat ul { margin: 0 }
+.ztlselected { background-color:#9AD2FF }
+dd.ztlselected { 
+    display: block !important;
+    margin: 0; 
+}
+.monatsplan td { padding: 0.2em 0.5em; }

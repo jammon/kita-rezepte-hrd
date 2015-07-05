@@ -1,0 +1,76 @@
+{% extends "yaml-design.html" %}
+{% block title %}Kita-Rezepte - Monatsplan{% endblock title %}
+{% block css %}{% include "1col.html" %}{% endblock css %}
+{% block javascript %}{% include "javascript.html" %}{% include "javascript-editable.html" %}{% endblock javascript %}
+{% block main %}
+<h1>Monatsplan für {{ monat }}/{{ jahr }}</h1>
+<div class="noprint">
+	<a href="{{ vormonat.link }}" class='floatleft'>
+    {{ vormonat.name }} &lt;&lt;</a>
+	<a href="{{ naechstermonat.link }}" class='floatright'>
+    &gt;&gt; {{ naechstermonat.name }}</a>
+	<p class='center'>
+    Für einen Tages-Koch- und -Menü-Plan bitte auf das Datum klicken.</p>
+</div>
+<div class="monatsplan">
+<table border="1">
+<tr>
+  <th>Tag</th>
+  <th>es kocht:</th>
+  <th>Vorspeise</th>
+  <th>Hauptgang</th>
+  <th>Nachtisch</th>
+</tr>
+{% for tag in tage %}
+  <tr class='{{ tag.klasse|lower }}'>
+  {% ifequal tag.klasse "Feiertag" %}
+    <td>{{ forloop.counter }}.</td><td colspan='4'></td>
+  {% else %}
+    <td>
+      <a href='/menueplan/{{ jahr }}/{{ monat }}/{{ forloop.counter }}'>
+      {{ forloop.counter }}.</a>
+    </td>
+    <td class='koch'>
+      <span id='koch_{{forloop.counter}}'>
+        {{ tag.menue.koch|default:"" }}</span>
+    </td>
+    <td class='vorspeise'>
+      <span id='vorspeise_{{forloop.counter}}'>
+        {% if isauthorized %}{{ tag.menue.get_vorspeise_mit_preis }}
+        {% else %}{{ tag.menue.get_vorspeise }}{% endif %}</span>
+    </td>
+    <td class='hauptgang'>
+      <span id="hauptgang_{{forloop.counter}}">
+        {% if isauthorized %}{{ tag.menue.get_hauptgang_mit_preis }}
+        {% else %}{{ tag.menue.get_hauptgang }}{% endif %}</span>
+    </td>
+    <td class='nachtisch'>
+      <span id="nachtisch_{{forloop.counter}}">
+        {% if isauthorized %}{{ tag.menue.get_nachtisch_mit_preis }}
+        {% else %}{{ tag.menue.get_nachtisch }}{% endif %}</span>
+    </td>
+  {% endifequal %}</tr>
+{% endfor %}
+</table>
+
+</div>
+{% if isauthorized %}
+<script>
+// When the page is ready
+$(document).ready(function(){
+  $(".koch span").editable('http://'+window.location.host+'/ajax/menue/koch/{{ jahr }}/{{ monat }}',{
+    tooltip  : '(Klicken)',
+    onblur   : 'submit',
+  });
+{% for gang, rezepte in gaenge %}
+  $('.{{ gang }} span').editable('http://'+window.location.host+'/ajax/menue/{{ gang }}/{{ jahr }}/{{ monat }}', {
+    data   : " { {% for r in rezepte %}'{{ r.id }}':'{{ r.titel }} {{ r.preisToStr|safe }}',{% endfor %} }",
+    type   : 'select',
+    submit : 'OK',
+    onblur   : 'submit',
+  });
+{% endfor %}
+});
+</script>
+{% endif %}
+{% endblock main %}

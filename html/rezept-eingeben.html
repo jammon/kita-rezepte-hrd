@@ -1,0 +1,124 @@
+{% extends "yaml-design.html" %}
+{% block title %}Kita-Rezepte - Rezept eingeben{% endblock %}
+{% block css %}{% include "1col.html" %}{% endblock css %}
+{% block javascript %}{% include "javascript.html" %}
+{% include "javascript-tinymce.html" %}{% endblock javascript %}
+{% block main %}
+<script type="text/javascript">
+  var zutatkey = '';
+  var zutaten = new Array();
+  function zutatwaehlen(name, key, einheit, element) {
+    $('#zutatname').text(name);
+    $('#zutateinheit').text(einheit);
+    $('#zutatmenge').val('');
+    zutatkey = key;
+    $(".zutatselected").removeClass("zutatselected");
+    $(element).addClass("zutatselected");
+  };
+  function zutatspeichern() {
+    name = $('#zutatname').text();
+    einheit = $('#zutateinheit').text();
+    menge_qual = $('#zutatmenge').val();
+    menge = Number(menge_qual)
+    if (isNaN(menge)) {
+      menge = ''
+      $('#zutatenliste').append('<tr><td>'+menge_qual+' '+name+'</td></tr>')
+    } else {
+      menge_qual = ''
+      $('#zutatenliste').append('<tr><td>'+menge+' '+einheit+' '+name+'</td></tr>')
+    }
+    with ($('#zutatensammlung')) {
+      content = val() + name+'§'+zutatkey+'§'+menge+'§'+menge_qual+'|';
+      val(content);
+    }
+  };
+</script>
+<h1>Rezept eingeben</h1>
+<form action="/rezepteingabe" method="post">
+<input type='hidden' id='zutatensammlung' name='zutatensammlung'></input>
+    <div>
+      <label for="titel">Titel</label><br />
+      <input name="titel" id="titel" type="text" size="60" maxlength="80"/>
+    </div>
+    <div>
+      <label for="kommentar">Kommentar</label><br />
+      <textarea name="kommentar" id="kommentar" cols="60" rows="3"></textarea>
+    </div>
+    <fieldset class='linkehaelfte'>
+    <div>
+      <h3>Zutatenliste</h3>
+      <table id="zutatenliste">
+      </table>
+      <h3>Neue Zutat</h3>
+      <!-- Zutatenliste -->
+      <dl class="ztl">{% for kategorie, liste in zutaten.items %}
+        <dt class="ztlkategorie">{{ kategorie}}</dt>
+        <dd class="ztlzutat"><ul>{% for zutat in liste %}
+          <li onclick="zutatwaehlen('{{ zutat.name }}','{{ zutat.key }}','{{ zutat.masseinheit }}',this)">
+            {{ zutat.name }}</li>
+        {% endfor %}</ul></dd>
+      {% endfor %}</dl>
+<!--      <select id="zutatkategorie" size="6">
+      {% for zk, zl in zutaten %}<option value="{{zk}}">{{zk}}</option>{% endfor %}
+      </select>
+      <select id="zutat" size="6">
+      {% for zk, zl in zutaten %}{% for z in zl %}
+        <option class="{{zk}}" onclick="javascript:zutatwaehlen('{{ z.name }}','{{ z.key }}','{{ z.masseinheit }}')">{{z.name}}</option>{% endfor %}{% endfor %}
+      </select -->
+      <div><span id="zutatname"></span><br />
+        <input type="text" name="zutatmenge" id="zutatmenge" size="10"></input>
+        <span style='width:4em' id="zutateinheit"></span>
+        <input type="button" name="bzutatspeichern" value="Hinzufügen"
+          onclick='javascript:zutatspeichern()'></input>
+      </div>
+    </div></fieldset>
+    <fieldset class='rechtehaelfte'><div>
+      Berechnet für<br />
+      <input type="text" name="kinder" id="kinder" size="3" value="20" /> 
+      <label for="kinder">Kinder</label>
+      <input type="text" name="erwachsene" id="erwachsene" size="3" value="5"/> 
+      <label for="erwachsene">Erwachsene</label>
+    </div>
+    <div>
+      <label for="zubereitung">Zubereitung</label><br />
+      <textarea name="zubereitung" id="zubereitung" class="tinymce" cols="60" rows="3"></textarea>
+    </div>
+    <div>
+      <label for="anmerkungen">Anmerkungen</label><br />
+      <textarea name="anmerkungen" id="anmerkungen" class="tinymce" cols="60" rows="3"></textarea>
+    </div>
+    <div>Geeignet für<br />
+    {% for gang in gaenge %}
+      <input type="checkbox" name="gang" id="gang_{{ gang }}" 
+             value="{{ gang }}"/> 
+      <label for="gang_{{ gang }}">{{ gang }}</label>
+    {% endfor %}  
+    </div>
+    <div>Kategorie<br />
+    {% for kategorie in kategorien %}
+      <input type="radio" name="kategorie" value="{{ kategorie }}" 
+             id="kategorie_{{ kategorie }}"/> 
+      <label for="kategorie_{{ kategorie }}">{{ kategorie }}</label>
+    {% endfor %}  
+    </div>
+    <div><input type="submit" value="Speichern"/></div>
+    </fieldset>
+</form>
+{% endblock main %}
+{% block endscripts %}<script> //<![CDATA[    
+// When the page is ready
+var zutat = '';
+$(document).ready(function(){
+    $('textarea.tinymce').tinymce({
+        script_url : '/js/tinymce/jscripts/tiny_mce/tiny_mce.js',
+        theme : "simple",
+        plugins : "safari,style,layer,table,inlinepopups,media,searchreplace,contextmenu,paste,fullscreen,visualchars,xhtmlxtras",
+    });
+    $('.ztlzutat').hide();
+    $('.ztlkategorie').click(function() {
+        $('.ztlselected').removeClass('ztlselected');
+        $(this).next('dd').andSelf().addClass('ztlselected');
+    })
+});
+//]]></script>
+{% endblock endscripts %}

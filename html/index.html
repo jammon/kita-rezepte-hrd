@@ -1,0 +1,15 @@
+{% extends "yaml-design.html" %} 
+{% block title %}Kita-Rezepte - Startseite{% endblock %} 
+{% block col3 %}
+<h1>Kita-Rezepte</h1>
+<p>Hier werden die Rezepte und Kochpläne der 
+<a href="http://www.kita-pusteblume.info/">Kindertagesstätte
+Pusteblume e.V.</a> in Kempen dargestellt und verwaltet.</p>
+<p>Wir kochen das Mittagessen für unsere Kinder selbst. Wir kochen
+jahreszeitlich orientiert; die Lebensmittel stammen aus kontrolliert
+biologischer Landwirtschaft. Gemüse und Milchprodukte werden einmal
+wöchentlich von einem Bio-Bauern aus der Region geliefert.
+Grundnahrungsmittel werden über einen Bio-Großhandel bezogen.</p>
+{% if not isauthorized %}
+<p><a href='{{ loginurl }}'>Anmelden zum Bearbeiten</a></p>
+{% endif %} {% endblock col3 %}

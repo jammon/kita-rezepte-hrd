@@ -1,0 +1,86 @@
+{% extends "yaml-design.html" %}
+{% block title %}Kita-Rezepte - Liste der Zutaten{% endblock %}
+{% block css %}{% include "2col50.html" %}{% endblock css %}
+{% block javascript %}{% include "javascript.html" %}{% include "javascript-editable.html" %}{% endblock javascript %}
+{% block col1 %}<h2>Liste der Zutaten</h2>
+{% include "zutaten-anzeigen-template.html" %}{% endblock col1 %}
+{% block col3 %}{% if isauthorized %}
+<div class='zutateneingabe'><h2>Zutat bearbeiten</h2>
+<form action="/zutaten/{{ zutat.key }}" method="post">
+  <table>
+    <tr>
+      <td><label for="name">Name</label></td>
+      <td><input name="name" id="name" type="text" size="30" maxlength="40" 
+                 value="{{ zutat.name }}"/></td>
+    </tr>
+    <tr>
+      <td><label for="einheit">Einheit</label></td>
+      <td><input name="einheit" id="einheit" type="text" size="20" maxlength="40" 
+                 value="{{ zutat.einheit }}"/>
+        <input type="button" value="1 kg"  id="ein_kg"/>
+        <input type="button" value="1 Pfd."  id="ein_pfd"/>
+        <input type="button" value="1 l"  id="ein_l"/>
+        <input type="button" value="1 Stck."  id="ein_st"/>
+        <!-- span id='ein_l'>(1 l)</span -->
+        <div class="discreet">Bitte die Verkaufseinheit angeben, z.B. 
+        "250 ml Becher", "2,5 kg Sack" (bei Kartoffeln), "10 Stck." (bei 
+        Eiern) oder einfach "1 kg" bei Möhren</div></td>
+    </tr>
+    <tr>
+      <td><label for="menge">Menge pro Einheit</label></td>
+      <td><input name="menge" id="menge" type="text" size="10" maxlength="15" 
+                 value="{{ zutat.menge_pro_einheit }}"/> 
+        {% for einheit in masseinheiten %}
+          <input type="radio" name="masseinheit" value="{{ einheit }}" 
+                 id="{{ einheit }}" 
+                 {% ifequal einheit zutat.masseinheit %}checked="checked"{% endifequal %}/> 
+          {{ einheit }}{% endfor %}
+        <div class="discreet">Bei Sahne z.B. 250 ml</div>
+      </td>
+    </tr>
+    <tr>
+      <td>Kategorie</td>
+      <td>
+        {% for kategorie in kategorien %}
+          <input type="checkbox" name="kategorie" value="{{ kategorie }}"
+            {% ifequal kategorie zutat.kategorie %} checked="checked" 
+            {% endifequal %}/> 
+          {{ kategorie }}
+        {% endfor %}
+        <div class="discreet">Man kann auch mehrere Kategorien ankreuzen.</div>
+      </td>
+    </tr>
+    <tr>
+      <td><label for="preis">Preis pro Einheit</label></td>
+      <td><input name="preis" id="preis" type="text" size="10" maxlength="15"/
+                 value="{{ zutat.preisInEuro }}"></td>
+    </tr>
+  </table>
+  <div><input type="submit" value="Speichern"/></div>
+  <div>{% ifequal zutat.verwendung.count 0 %}
+  Die Zutat zur Zeit in keinem Rezept verwendet. 
+  <a href="/zutatloeschen/{{ zutat.key }}">Zutat löschen</a>{% else %}
+  Die Zutat wird in folgenden Rezepten verwendet:<ul>{% for rz in zutat.verwendung %}
+    <li><a href="/rezepte/{{ rz.rezept.id }}">{{ rz.rezept.titel }}</a></li>
+  {% endfor %}</ul>{% endifequal %}</div>
+</form>
+</div>
+{% endif %}
+{% endblock col3 %}
+{% block endscripts %}{% if isauthorized %}
+<script> //<![CDATA[    
+// When the page is ready
+function einheit(bez, menge, einh){
+    $('#einheit').val(bez);
+    $('#menge').val(menge);
+    $('#'+einh).click();
+}
+$(document).ready(function(){
+  $(".zutatpreis").editable('http://'+window.location.host+'/ajax/zutat/preis');
+  $('#ein_kg').click(function () {einheit('1 kg', 1000, 'g')});
+  $('#ein_pfd').click(function () {einheit('1 Pfd.', 500, 'g')});
+  $('#ein_l').click(function () {einheit('1 l', 1000, 'ml')});
+  $('#ein_st').click(function () {einheit('1 Stck.', 1, 'St.')});
+});
+//]]></script>
+{% endif %}{% endblock endscripts %}

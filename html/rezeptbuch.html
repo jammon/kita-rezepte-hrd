@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <title>Kita-Rezepte - Rezeptbuch</title>
+    <link href="/css/rezeptbuch.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+{% for gang in rezepte %}
+  <h2>{{ gang.gang }}</h2>
+  {% for rezept in gang.rezepte %}
+    {% ifchanged %}<h3>{{ rezept.kategorie }}</h3>{% endifchanged %}
+    <div class="rezept">
+        <div class="personen">Berechnet für {{ rezept.personen.0 }} Kinder und {{ rezept.personen.1 }} Erwachsene.</div>
+        <h4>{{ rezept.titel }}</h4>
+        <div>
+          <div class="zutaten">{% for zutat in rezept.zutatenliste %}
+          <div>{{ zutat }}</div>
+          {% endfor %}</div>
+          <div class="zubereitung">{{ rezept.zubereitung|safe }}</div>
+          <div class="anmerkungen">{{ rezept.anmerkungen|safe }}</div>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div class="rule"></div>
+  {% endfor %}
+{% endfor %}
+</body>
+</html>

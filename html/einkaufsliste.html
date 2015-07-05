@@ -1,0 +1,62 @@
+{% extends "yaml-design.html" %}
+{% block title %}Kita-Rezepte - Einkaufsliste{% endblock title %}
+{% block css %}{% include "3col33.html" %}{% endblock css %}
+{% block javascript %}{% include "javascript.html" %}
+<script src="/js/jquery.maskedinput.min.js" type="text/javascript"></script>
+{% endblock javascript %}
+{% block teaser %}
+<h1>Einkaufsliste</h1>
+<p>ab {{ beginn|date:"d. M. Y" }} für 
+  {{ dauer }} Tage:
+</p>
+{% endblock teaser %}
+{% block col2 %}
+{% if fehler  %}
+    <p>{{ fehler }}</p>
+{% else %}
+  {% if messbar %}
+  <h2>Benötigte Mengen:</h2>
+  <table>{% for kategorie, zutaten in messbar.items %}{% if zutaten %}
+    <tr><td colspan="3"><h3>{{ kategorie }}</h3></td></tr>
+    {% for zutat in zutaten %}
+    <tr><td>{% if isauthorized %}<a href="/zutaten/{{ zutat.key }}">{{ zutat.name }}</a>{% else %}{{ zutat.name }}{% endif %}</td>
+      <td>{{ zutat.menge }} {{ zutat.einheit }}</td></tr>
+    {% endfor %}{% endif %}{% endfor %}
+  </table>
+  {% endif %}
+{% endif %}
+{% endblock col2 %}
+{% block col3 %}
+  {% if qualitativ %}
+  <h2>Nur qualitative Mengenangaben:</h2>
+  <table>{% for kategorie, zutaten in qualitativ.items %}{% if zutaten %}
+    <tr><td colspan="3"><h3>{{ kategorie }}</h3></td></tr>
+    {% for zutat in zutaten %}
+    <tr><td>{% if isauthorized %}<a href="/zutaten/{{ zutat.key }}">{{ zutat.name }}</a>{% else %}{{ zutat.name }}{% endif %}</td>
+      <td>{{ zutat.menge }}</td></tr>
+    {% endfor %}{% endif %}{% endfor %}
+  </table>
+  {% endif %}
+{% endblock col3 %}
+{% block col1 %}
+{% if not fehler  %}
+  <p>Folgende Rezepte wurden geplant:<ul>{% for r in rezepte %}
+    <li><a href="/rezepte/{{ r.id }}">{{ r.titel }}</a></li>
+  {% endfor %}</ul></p>
+{% endif %}
+<form action='/einkaufsliste' method='get'>
+Anderer Zeitraum:<br />
+<label for='beginn'>Beginn:</label>
+<input type='text' name='beginn' id='beginn' size='12'></input><br />
+<label for='dauer'>Dauer:</label>
+<input type='text' name='dauer' id='dauer' size='12'></input><br />
+<input type="submit" value="Absenden"></input>
+</form>
+<script> //<![CDATA[    
+// When the page is ready
+$(document).ready(function(){
+    $("#beginn").mask('99.99.9999');
+    $("#dauer").mask('99');
+});
+//]]></script>
+{% endblock col1 %}

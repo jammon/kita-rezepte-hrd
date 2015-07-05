@@ -1,0 +1,18 @@
+{% if zutaten %}
+<table>
+<tr><th>Zutat</th><th>Einheit</th><th>Preis</th><th>Kategorie</th></tr>
+{% for zutat in zutaten %}
+  <tr>
+    <td>{% if isauthorized %}<a href="/zutaten/{{ zutat.key }}">{{ zutat.name }}</a>
+    {% else %}{{ zutat.name }}{% endif %}</td>
+    <td>{{ zutat.einheit }}{% if zutat.menge_pro_einheit %}
+      ({{ zutat.menge_pro_einheit }} {{ zutat.masseinheit }})
+    {% endif %}</td>
+    <td><span class='zutatpreis' id="{{ zutat.key }}">{{ zutat.preisInEuro }}</span> €</td>
+    <td><span class='zutatkategorie' id="{{ zutat.key }}">{{ zutat.kategorie }}</span></td>
+  </tr>
+{% endfor %}
+</table>
+{% else %}
+<p>Es sind noch keine Zutaten eingegeben.</p>
+{% endif %}

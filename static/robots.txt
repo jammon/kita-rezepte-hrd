@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /monatsplan
+Disallow: /menueplan
+Disallow: /rezepteingabe
+Disallow: /rezeptloeschen
+Disallow: /daten
+Disallow: /ajax

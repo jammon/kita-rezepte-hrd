@@ -1,0 +1,59 @@
+application: kita-rezepte-hrd
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: no
+
+default_expiration: "30d"
+
+handlers:
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico
+
+- url: /css/kita-rezepte.css
+  static_files: css/kita-rezepte.css
+  upload: css/kita-rezepte.css
+  expiration: "1d"
+
+- url: /js/kitarezepte.js
+  static_files: js/kitarezepte.js
+  upload: js/kitarezepte.js
+  expiration: "1d"
+
+- url: /css
+  static_dir: css
+
+- url: /yaml
+  static_dir: yaml
+
+- url: /screen
+  static_dir: css
+
+- url: /js
+  static_dir: js
+
+- url: /images
+  static_dir: images
+
+#- url: /ajax/.*
+#  script: ajax.py
+  
+- url: /auth/.*
+  script: auth.py
+  login: admin
+
+- url: /remote_api
+  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
+  login: admin
+
+- url: /robots.txt
+  static_files: static/robots.txt
+  upload: static/robots.txt
+
+- url: /.*
+  script: kitarezepte.py
+
+libraries:
+- name: webapp2
+  version: "2.5.2"

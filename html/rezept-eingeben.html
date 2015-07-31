@@ -1,8 +1,10 @@
 {% extends "yaml-design.html" %}
 {% block title %}Kita-Rezepte - Rezept eingeben{% endblock %}
 {% block css %}{% include "1col.html" %}{% endblock css %}
-{% block javascript %}{% include "javascript.html" %}
-{% include "javascript-tinymce.html" %}{% endblock javascript %}
+{% block javascript %}
+  {% include "javascript.html" %}
+  {% include "javascript-tinymce.html" %}
+{% endblock javascript %}
 {% block main %}
 <script type="text/javascript">
   var zutatkey = '';
@@ -58,13 +60,7 @@
             {{ zutat.name }}</li>
         {% endfor %}</ul></dd>
       {% endfor %}</dl>
-<!--      <select id="zutatkategorie" size="6">
-      {% for zk, zl in zutaten %}<option value="{{zk}}">{{zk}}</option>{% endfor %}
-      </select>
-      <select id="zutat" size="6">
-      {% for zk, zl in zutaten %}{% for z in zl %}
-        <option class="{{zk}}" onclick="javascript:zutatwaehlen('{{ z.name }}','{{ z.key() }}','{{ z.masseinheit }}')">{{z.name}}</option>{% endfor %}{% endfor %}
-      </select -->
+
       <div><span id="zutatname"></span><br />
         <input type="text" name="zutatmenge" id="zutatmenge" size="10"></input>
         <span style='width:4em' id="zutateinheit"></span>

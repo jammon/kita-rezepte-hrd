@@ -18,7 +18,7 @@
     <tr><td colspan="2"><h2>{{ k.kategorie }}</h2></td></tr>
     {% for r in k.rezepte %}
     <tr><td><a href="rezepte/{{ r.id }}">{{ r.titel }}</a></td>
-    <td>{% if isauthorized %}{{ r.preis|floatformat:"-2"  }} &euro;{% endif %}</td></tr>
+    <td>{% if isauthorized %}{{'%0.2f'| format(r.preis())}} &euro;{% endif %}</td></tr>
     {% endfor %}
 {% endfor %}
 </table>

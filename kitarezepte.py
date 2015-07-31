@@ -3,6 +3,7 @@ import cgi
 import os
 import logging
 from datetime import date, timedelta
+from collections import defaultdict
 
 from google.appengine.api import users
 from google.appengine.ext import db
@@ -146,15 +147,14 @@ class ZutatLoeschen(AuthorizedRequestHandler):
 class RezeptEingabe(AuthorizedRequestHandler, TemplateWriter):
     def get(self):
         if self.authorize():
-            zutaten = models.Zutat.all().order("name").fetch(1000)
-            zutaten = dict([(k or u'keine Kategorie',
-                             [z for z in zutaten if z.kategorie == k])
-                            for k in set([z.kategorie for z in zutaten])])
+            zutaten = defaultdict(list)
+            for z in models.Zutat.all().order("name").fetch(1000):
+                zutaten[z.kategorie or u'keine Kategorie'].append(z)
             template_values = standard_template_values()
             template_values.update({
-              'zutaten': zutaten,
-              'gaenge': GAENGE,
-              'kategorien': REZEPTKATEGORIEN,
+                'zutaten': zutaten,
+                'gaenge': GAENGE,
+                'kategorien': REZEPTKATEGORIEN,
             })
             self.write_out_template('rezept-eingeben.html', template_values)
 

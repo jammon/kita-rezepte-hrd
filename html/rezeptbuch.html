@@ -9,7 +9,10 @@
 {% for gang in rezepte %}
   <h2>{{ gang.gang }}</h2>
   {% for rezept in gang.rezepte %}
-    {% ifchanged %}<h3>{{ rezept.kategorie }}</h3>{% endifchanged %}
+    {% if rezept.kategorie != last_kategorie %}
+        <h3>{{ rezept.kategorie }}</h3>
+        {% set last_kategorie = rezept.kategorie %}
+    {% endif %}
     <div class="rezept">
         <div class="personen">Berechnet für {{ rezept.personen.0 }} Kinder und {{ rezept.personen.1 }} Erwachsene.</div>
         <h4>{{ rezept.titel }}</h4>

@@ -7,16 +7,17 @@ from google.appengine.ext.db import polymodel
 import tools
 
 MASSEINHEITEN = [u"g", u"ml", u"St.", u"Pckg."]
-ZUTATENKATEGORIEN = [u"Milchprodukt", u"Gemüse", u"Obst", u"Getreide", 
+ZUTATENKATEGORIEN = [u"Milchprodukt", u"Gemüse", u"Obst", u"Getreide",
                      u"Grundnahrungsmittel", u"Fisch", u"Gewürz", u"Sonstiges"]
+
 
 class Zutat(db.Model):
     """ Eine Zutat, die in den Rezepten verwandt werden kann
-    
+
     name: Name (naja)
-    einheit: Packungseinheit für den Einkauf meist 1 kg, 1 l, aber auch 
+    einheit: Packungseinheit für den Einkauf meist 1 kg, 1 l, aber auch
              2,5 kg-Sack.
-             Fällt weg bei Dingen wie Eiern, die eine natürliche Einheit 
+             Fällt weg bei Dingen wie Eiern, die eine natürliche Einheit
              haben; dann "Stück"
     preis_pro_einheit: der Preis einer Packungseinheit; in Cent
     menge_pro_einheit: Anzahl der "masseinheit"en (s.u.) pro Packungseinheit
@@ -25,79 +26,80 @@ class Zutat(db.Model):
     """
     name = db.StringProperty()
     einheit = db.StringProperty()
-    preis_pro_einheit = db.IntegerProperty() # Angabe in Cent
-    menge_pro_einheit = db.IntegerProperty() # bei 1 kg: 1000
-    masseinheit = db.StringProperty(choices=MASSEINHEITEN) # bei 1 kg: g
+    preis_pro_einheit = db.IntegerProperty()  # Angabe in Cent
+    menge_pro_einheit = db.IntegerProperty()  # bei 1 kg: 1000
+    masseinheit = db.StringProperty(choices=MASSEINHEITEN)  # bei 1 kg: g
     kategorie = db.StringProperty(choices=ZUTATENKATEGORIEN)
-    
+
     def preisInEuro(self):
         """ Preis einer Packungseinheit in Euro als String
-        
+
         z.B. "3,59"
         """
         res = u"%.2f" % (self.preis_pro_einheit/100.0, )
         return res.replace('.', ',')
-    
+
     def einHeit(self):
         if self.menge_pro_einheit:
             return self.masseinheit
         else:
             return self.einheit
-    
+
     def initString(self):
-        """Gib einen Python-Befehl zurück, mit dem das Objekt in einer Fixture 
+        """Gib einen Python-Befehl zurück, mit dem das Objekt in einer Fixture
         wieder gebaut werden kann
         """
         res = u'    models.Zutat(key_name=u"%s", name=u"%s", einheit=u"%s", ' + \
               u'preis_pro_einheit=%d, menge_pro_einheit=%d, ' + \
-              u'masseinheit=u"%s", kategorie=u"%s").put()' 
-        return res % (unicode(self.key()), self.name, self.einheit, 
-                      self.preis_pro_einheit or 0, self.menge_pro_einheit or 0, 
+              u'masseinheit=u"%s", kategorie=u"%s").put()'
+        return res % (unicode(self.key()), self.name, self.einheit,
+                      self.preis_pro_einheit or 0, self.menge_pro_einheit or 0,
                       self.masseinheit or '', self.kategorie or '',)
-        
+
     def updateRezeptpreise(self):
         """ Wenn der Preis einer Zutat geändert wurde, müssen die Rezeptpreise entsprechend
         angepasst werden.
         """
         for rz in self.verwendung:
-            rz.rezept.preis(update = True)
+            rz.rezept.preis(update=True)
+
 
 class Rezept(db.Model):
-    '''Enthält ein Rezept mit Titel, Kochanweisung usw. 
-       Die Zutaten werden getrennt davon mit dem Key des Rezepts gespeichert 
+    '''Enthält ein Rezept mit Titel, Kochanweisung usw.
+       Die Zutaten werden getrennt davon mit dem Key des Rezepts gespeichert
        (Model RezeptZutat).
     '''
     titel = db.StringProperty()
-    id = db.StringProperty() # wird i.d.R. aus titel berechnet
+    id = db.StringProperty()  # wird i.d.R. aus titel berechnet
     kommentar = db.TextProperty()
-    personen = db.ListProperty(long) # Anzahl der [Kinder, Erwachsenen]
+    personen = db.ListProperty(long)  # Anzahl der [Kinder, Erwachsenen]
     zubereitung = db.TextProperty()
     anmerkungen = db.TextProperty()
     eingegeben_von = db.UserProperty()
     typ = db.StringListProperty()    # Vorspeise, Hauptgang, Nachtisch
                                      # kann mehrere Werte enthalten
-    kategorie = db.StringProperty() # Art des Essens
+    kategorie = db.StringProperty()  # Art des Essens
     # z.B. Gemüse, Teigwaren, Suppe, Getreide, Reis usw.
     version = db.IntegerProperty()  # Es kann mehrere Versionen dieses Rezepts geben
-    preis_ = db.FloatProperty() # kann leer sein, dann wird er neu berechnet
-    
-    def init(self, titel=None, kommentar=None, personen=None, 
-                 zubereitung=None, anmerkungen=None,
-                 typ=None, kategorie=None, id=None, version=1):
+    preis_ = db.FloatProperty()  # kann leer sein, dann wird er neu berechnet
+
+    def init(self, titel=None, kommentar=None, personen=None,
+             zubereitung=None, anmerkungen=None,
+             typ=None, kategorie=None, id=None, version=1):
         #db.Model.__init__(self)
-        self.titel = titel 
+        self.titel = titel
         self.calculateId(titel)
-        self.kommentar = kommentar 
-        self.personen = personen 
-        self.zubereitung = zubereitung 
-        self.anmerkungen = anmerkungen 
-        self.eingegeben_von = users.get_current_user() 
-        self.typ = typ 
+        self.kommentar = kommentar
+        self.personen = personen
+        self.zubereitung = zubereitung
+        self.anmerkungen = anmerkungen
+        self.eingegeben_von = users.get_current_user()
+        self.typ = typ
         self.kategorie = kategorie
         self.version = version
 
     def calculateId(self, titel):
-        """Sucht eine ID, die aus dem Titel erstellt wird und noch nicht 
+        """Sucht eine ID, die aus dem Titel erstellt wird und noch nicht
         vergeben ist.
         """
         grund_id = id = tools.str2id(titel)
@@ -105,7 +107,7 @@ class Rezept(db.Model):
         # Alle IDs raussuchen, die mit grund_id anfangen
         query = Rezept.all().filter('id >= ', id).order('id')
         for r in query:
-            if self.is_saved() and r.key()==self.key():
+            if self.is_saved() and (r.key() == self.key()):
                 continue
             if r.id.startswith(grund_id):
                 vorhandeneIds.append(r.id)
@@ -117,7 +119,7 @@ class Rezept(db.Model):
             id = grund_id + str(i)
         self.id = id
 
-    def preis(self, update = False):
+    def preis(self, update=False):
         """ Gibt den vorberechneten Preis oder rechnet ihn neu
         """
         if self.preis_ is None or update:
@@ -125,22 +127,24 @@ class Rezept(db.Model):
             if self.is_saved():
                 self.put()
         return self.preis_
+
     def preisToStr(self):
         """ Gibt den Preis als String (z.B. '13,48 €')
         """
         return u"%.2f&nbsp;&euro;" % (self.preis(),)
 
     def initString(self):
-        """Gib einen Python-Befehl zurück, mit dem das Objekt in einer Fixture 
+        """Gib einen Python-Befehl zurück, mit dem das Objekt in einer Fixture
         wieder gebaut werden kann
         """
         res = u'    models.Rezept(key_name=u"%s", titel=u"%s", id=u"%s", ' + \
               u'kommentar="""%s""", personen=%s, zubereitung=u"""%s""", ' + \
               u'anmerkungen=u"""%s""", typ=[u"%s"], ' + \
               u'kategorie=u"%s", version=%d).put()'
-        return res % (unicode(self.key()), self.titel, self.id, self.kommentar, 
-                      unicode(self.personen), self.zubereitung, self.anmerkungen, 
+        return res % (unicode(self.key()), self.titel, self.id, self.kommentar,
+                      unicode(self.personen), self.zubereitung, self.anmerkungen,
                       '", u"'.join(self.typ), self.kategorie, self.version or 1,)
+
 
 def makeRezeptFromRequest(request):
     r = Rezept()
@@ -155,14 +159,15 @@ def makeRezeptFromRequest(request):
     r.calculateId(r.titel)
     return r
 
+
 class RezeptZutat(db.Model):
     """Eine Zutat, die in einem Rezept verwendet wird.
-    
-    Enthält 
-    - rezept, zutat: einen Verweis auf das Rezept und die Zutat 
+
+    Enthält
+    - rezept, zutat: einen Verweis auf das Rezept und die Zutat
     - menge, menge_qualitativ: die gewünschte Menge als Float oder qualitativ als String
     - name, einheit: Name und Einheit der Zutat, um DB-Zugriffe zu sparen
-    - nummer: eine Nummer, um die Zutaten sortieren zu können 
+    - nummer: eine Nummer, um die Zutaten sortieren zu können
     """
     rezept = db.ReferenceProperty(Rezept, collection_name='zutaten')
     zutat = db.ReferenceProperty(Zutat, collection_name='verwendung')
@@ -171,7 +176,7 @@ class RezeptZutat(db.Model):
     name = db.StringProperty()
     einheit = db.StringProperty()
     nummer = db.IntegerProperty()
-    
+
     def init(self, rezept, zutat, menge, menge_qualitativ, nummer):
         db.Model.__init__(self)
         if type(rezept) in (db.Key, Rezept):
@@ -186,20 +191,20 @@ class RezeptZutat(db.Model):
         self.einheit = self.zutat.einHeit()
         self.menge_qualitativ = menge_qualitativ
         self.nummer = nummer
-        
+
     def initString(self):
-        """Gib einen Python-Befehl zurück, mit dem das Objekt in einer Fixture 
+        """Gib einen Python-Befehl zurück, mit dem das Objekt in einer Fixture
         wieder gebaut werden kann
         """
         res = u'    models.RezeptZutat(rezept=models.Rezept.get_by_key_name(u"%s"), ' + \
               u'zutat=models.Zutat.get_by_key_name(u"%s"), name=u"%s", menge=%s, ' + \
               u'einheit=u"%s", menge_qualitativ=u"%s", nummer=%d).put()'
-        return res % (unicode(self.rezept.key()), unicode(self.zutat.key()), self.name, 
-                      unicode(self.menge or None), self.einheit or u'', 
+        return res % (unicode(self.rezept.key()), unicode(self.zutat.key()), self.name,
+                      unicode(self.menge or None), self.einheit or u'',
                       self.menge_qualitativ or '', self.nummer or 1)
 
     def toStr(self):
-        liste = (self.menge_qualitativ and [self.menge_qualitativ] or 
+        liste = (self.menge_qualitativ and [self.menge_qualitativ] or
                  [tools.prettyFloat(self.menge), self.einheit or ''])
         liste.append(self.name)
         return ' '.join(liste)
@@ -217,10 +222,11 @@ class RezeptZutat(db.Model):
         if z.menge_pro_einheit:
             return long(self.menge * z.preis_pro_einheit / z.menge_pro_einheit)
         else:
-            return long(self.menge * z.preis_pro_einheit) 
+            return long(self.menge * z.preis_pro_einheit)
 
     def preisToStr(self):
         return u'%.2f €' % (self.preis()/100.0,)
+
 
 class MenueBewertung(db.Model):
     datum = db.DateProperty()
@@ -228,20 +234,23 @@ class MenueBewertung(db.Model):
     hat_geschmeckt = db.RatingProperty()
     menge_ok = db.RatingProperty()
     kommentar = db.TextProperty()
-    
-# abstrakte Grundklasse 
+
+
+# abstrakte Grundklasse
 class Tagesplan(polymodel.PolyModel):
     datum = db.DateProperty()
-    
+
+
 class Feiertag(Tagesplan):
     kommentar = db.StringProperty()
 
+
 class Menue(Tagesplan):
-    """ Speichert drei Rezepte (Vorspeise, Hauptgang und Nachtisch), 
+    """ Speichert drei Rezepte (Vorspeise, Hauptgang und Nachtisch),
     einen Koch und eine Bewertung
-    
+
     Zusätzlich werden Listen der Gänge, Titel der Gänge und Preise der Gänge gespeichert.
-    Die Änderungsoperationen sollen immer auf den einzelnen Rezept-Properties erfolgen. 
+    Die Änderungsoperationen sollen immer auf den einzelnen Rezept-Properties erfolgen.
     """
     koch = db.StringProperty()
     vorspeise = db.ReferenceProperty(Rezept, collection_name="vorspeise")
@@ -254,26 +263,27 @@ class Menue(Tagesplan):
 
     def put(self, *args, **kwargs):
         gaenge = [self.vorspeise, self.hauptgang, self.nachtisch]
-        self.titel = [(gang is not None and gang.titel or '') for gang in gaenge] 
+        self.titel = [(gang is not None and gang.titel or '') for gang in gaenge]
         self.preise = [(gang is not None and gang.preis() or 0.0) for gang in gaenge]
         self.has_lists = True
         return super(Menue, self).put(*args, **kwargs)
 
     def initString(self):
-        """Gib einen Python-Befehl zurück, mit dem das Objekt in einer Fixture 
+        """Gib einen Python-Befehl zurück, mit dem das Objekt in einer Fixture
         wieder gebaut werden kann
         """
         res = u'    models.Menue(datum= datetime.date.fromordinal(%d), ' + \
               u'koch = %s, vorspeise=%s, hauptgang=%s, nachtisch=%s, ' + \
-              u'bewertung=None).put()' 
-        return res % (self.datum.toordinal(), 
-            self.koch and ('"'+self.koch+'"') or 'None', 
-            self.vorspeise and ('models.Rezept.get_by_key_name(u"%s")' % 
-                                (str(self.vorspeise.key()),)) or 'None', 
-            self.hauptgang and ('models.Rezept.get_by_key_name(u"%s")' % 
-                                (str(self.hauptgang.key()),)) or 'None', 
-            self.nachtisch and ('models.Rezept.get_by_key_name(u"%s")' % 
+              u'bewertung=None).put()'
+        return res % (self.datum.toordinal(),
+            self.koch and ('"'+self.koch+'"') or 'None',
+            self.vorspeise and ('models.Rezept.get_by_key_name(u"%s")' %
+                                (str(self.vorspeise.key()),)) or 'None',
+            self.hauptgang and ('models.Rezept.get_by_key_name(u"%s")' %
+                                (str(self.hauptgang.key()),)) or 'None',
+            self.nachtisch and ('models.Rezept.get_by_key_name(u"%s")' %
                                 (str(self.nachtisch.key()),)) or 'None', )
+
     def get_gang(self, nr):
         return getattr(self, ('vorspeise', 'hauptgang', 'nachtisch')[nr])
     def get_gang_titel(self, nr):
@@ -307,22 +317,24 @@ class Menue(Tagesplan):
     def get_nachtisch_mit_preis(self):
         return self.get_gang_titel_mit_preis(2)
 
+
 class MonatsPlan(db.Model):
     """Speicher fuer einen MonatsPlan, um DB-Zugriffe zu reduzieren"""
     monat = db.IntegerProperty()
     jahr = db.IntegerProperty()
     tage = db.StringListProperty()
     tage_auth = db.StringListProperty()
-    
+
+
 def getMonatsPlan(monat, jahr):
     monatsplan = MonatsPlan.all().filter("monat =", monat
                                 ).filter("jahr =", jahr
                                 ).get()
     if monatsplan:
         return monatsplan
-    erster = date(jahr, monat, 1)
-    naechstererster = ((monat<12) and date(jahr, monat+1, 1) 
-                       or date(jahr+1, 1, 1))
+    erster = datetime.date(jahr, monat, 1)
+    naechstererster = ((monat<12) and datetime.date(jahr, monat+1, 1)
+                       or datetime.date(jahr+1, 1, 1))
     FEIERTAG = "<td>%(tag)d.</td><td colspan='4'></td>"
     WTAG = ("<td><a href='/menueplan/%(jahr)d/%(monat)d/%(tag)d'>%(tag)d.</a></td>"
             "<td class='koch'><span id='koch_%(tag)d'>%(koch)s</span></td>"
